@@ -27,6 +27,7 @@ Symmetric-Cipher-Performance-Analysis/
 │       └── FileHelper.psm1     # Data generation and unit conversion
 ├── data/                       # Local test data (Ignored by Git)
 └── Main.ps1                    # Application entry point
+```
 
 ## 🛠️ Setup & Installation
 
