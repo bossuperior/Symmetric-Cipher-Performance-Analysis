@@ -48,8 +48,8 @@ class Benchmark {
             }
         }
         finally {
-            if (Test-Path $outputFile) { Remove-Item $outputFile -ErrorAction SilentlyContinue }
-            if (Test-Path $decryptedFile) { Remove-Item $decryptedFile -ErrorAction SilentlyContinue }
+            if (Test-Path $outputFile) { Remove-Item $outputFile -Force }
+            if (Test-Path $decryptedFile) { Remove-Item $decryptedFile -Force }
         }
     }
 }

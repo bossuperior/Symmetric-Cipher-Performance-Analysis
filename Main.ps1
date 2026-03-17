@@ -1,8 +1,8 @@
 # 1. Load dependencies
-Import-Module "$PSScriptRoot\src\Classes\CipherBase.psm1"
-Import-Module "$PSScriptRoot\src\Classes\OpenSSLCipher.psm1"
-Import-Module "$PSScriptRoot\src\Core\Benchmark.psm1"
-Import-Module "$PSScriptRoot\src\Utils\FileHelper.psm1"
+using module ".\src\Classes\CipherBase.psm1"
+using module ".\src\Classes\OpenSSLCipher.psm1"
+using module ".\src\Core\Benchmark.psm1"
+using module ".\src\Utils\FileHelper.psm1"
 
 # Setup Environment & Input
 Write-Host "`n--- Symmetric Encryption Tool ---" -ForegroundColor Magenta
@@ -24,7 +24,7 @@ $cipherList = @(
     [OpenSSLCipher]::new("aes-256-ecb", 256, $false),
     [OpenSSLCipher]::new("aes-256-cbc", 256, $false),
     [OpenSSLCipher]::new("rc4", 128, $true),
-    [OpenSSLCipher]::new("rc4", 64, $true),
+    [OpenSSLCipher]::new("rc4-64", 64, $true),
     [OpenSSLCipher]::new("rc4-40", 40, $true)
 )
 
@@ -48,9 +48,34 @@ foreach ($sizeName in $fileSizes) {
         }
         catch {
             Write-Host " [ERROR]" -ForegroundColor Red
+            Write-Host "DEBUG INFO: $($_.Exception.Message)" -ForegroundColor Gray
+            Write-Host "COMMAND LOG: $cmd" -ForegroundColor DarkGray
         }
     }
     if (Test-Path $currentFile) { Remove-Item $currentFile }
 }
 
-$results | Select-Object Algorithm, Size, Encrypt_ms, Overhead_Bytes | Format-Table -AutoSize
+$reportPath = Join-Path $PSScriptRoot "results"
+if (!(Test-Path $reportPath)) { New-Item -ItemType Directory -Path $reportPath | Out-Null }
+
+# Encryption Performance Report
+Write-Host "`n" + ("=" * 70) -ForegroundColor White
+Write-Host " PERFORMANCE REPORT: ENCRYPTION PHASE" -ForegroundColor Green
+Write-Host ("=" * 70) -ForegroundColor White
+
+$results | Select-Object Algorithm, Size, 
+    @{Name='Encrypt_Time(ms)'; Expression={$_.Encrypt_ms}}, 
+    Overhead_Bytes | Format-Table -AutoSize
+
+# Decryption Performance Report
+Write-Host "`n" + ("=" * 70) -ForegroundColor White
+Write-Host " PERFORMANCE REPORT: DECRYPTION PHASE" -ForegroundColor Cyan
+Write-Host ("=" * 70) -ForegroundColor White
+
+$results | Select-Object Algorithm, Size, 
+    @{Name='Decrypt_Time(ms)'; Expression={$_.Decrypt_ms}} | Format-Table -AutoSize
+
+$csvFile = Join-Path $reportPath "Symmetric_Performance_Analysis.csv"
+$results | Export-Csv -Path $csvFile -NoTypeInformation -Encoding utf8
+
+Write-Host "`n[COMPLETED] Results have been saved to: $csvFile" -ForegroundColor Yellow

@@ -12,7 +12,6 @@ class OpenSSLCipher : CipherBase {
             $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
             $algo = $this.AlgorithmName.ToLower()
             $cmd = "openssl enc -$algo -e -in `"$inputFile`" -out `"$outputFile`" -k `"$plainPassword`" -nosalt $providerArgs"
-            
             Invoke-Expression $cmd
         }
         finally {

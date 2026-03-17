@@ -20,6 +20,11 @@ class CipherBase {
     }
 
     [string] GetProviderArgs() {
-        return if ($this.IsLegacy) { "-provider legacy -provider default" } else { "" }
+        if ($this.IsLegacy) {
+            return "-provider-path `"$($this.ProviderPath)`" -provider legacy -provider default"
+        }
+        else {
+            return ""
+        }
     }
 }

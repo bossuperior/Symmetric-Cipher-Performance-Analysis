@@ -14,10 +14,18 @@ class FileHelper {
     }
 
     # Helper to convert friendly sizes (like "1MB") to bytes
-    static[long] ConvertToBytes([string]$sizeStr) {
-        if ($sizeStr -like "*MB") { return [long]($sizeStr.Replace("MB","")) * 1MB }
-        if ($sizeStr -like "*KB") { return [long]($sizeStr.Replace("KB","")) * 1KB }
-        if ($sizeStr -like "*B")  { return [long]($sizeStr.Replace("B","")) }
-        return [long]$sizeStr
+    static [long] ConvertToBytes([string]$sizeStr) {
+        $upperSize = $sizeStr.ToUpper()
+    
+        if ($upperSize -like "*MB") { 
+            return [long]($upperSize.Replace("MB", "")) * 1MB 
+        }
+        if ($upperSize -like "*KB") { 
+            return [long]($upperSize.Replace("KB", "")) * 1KB 
+        }
+        if ($upperSize -like "*B") { 
+            return [long]($upperSize.Replace("B", "")) 
+        }
+        return [long]$upperSize
     }
 }

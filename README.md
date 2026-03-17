@@ -1,4 +1,4 @@
-# Symmetric Cipher Performance Analysis (PowerShell OOP)
+# Symmetric Cipher Performance Analysis
 
 A professional benchmarking tool designed to evaluate and compare the performance of various symmetric encryption algorithms. This project leverages **OpenSSL** and is built using **Object-Oriented Programming (OOP)** principles in PowerShell.
 
@@ -27,3 +27,38 @@ Symmetric-Cipher-Performance-Analysis/
 │       └── FileHelper.psm1     # Data generation and unit conversion
 ├── data/                       # Local test data (Ignored by Git)
 └── Main.ps1                    # Application entry point
+
+## 🛠️ Setup & Installation
+
+### 1. Install OpenSSL
+To run this project, you must have OpenSSL installed on your system.
+
+* **Option A: Manual Install (Windows)**
+    1. Download the installer from [SLPROWEB OpenSSL](https://slproweb.com/products/Win32OpenSSL.html) (Version 3.x Light is recommended).
+    2. During installation, select **"The OpenSSL /bin directory"** when asked where to copy DLLs.
+    3. Note your installation path (usually `C:\Program Files\OpenSSL-Win64\bin`).
+
+* **Option B: Using Chocolatey**
+    If you use Chocolatey, run:
+    ```powershell
+    choco install openssl
+    ```
+
+### 2. Configure OpenSSL Path in Code
+If your OpenSSL is installed in a custom directory, you must update the path in the source code so the script can locate the `legacy` providers.
+
+**File:** `src/Classes/CipherBase.psm1`
+Update the path in the class constructor:
+
+```powershell
+class CipherBase {
+    ...
+    CipherBase([string]$name, [int]$keySize, [bool]$isLegacy) {
+        $this.AlgorithmName = $name
+        $this.KeySize = $keySize
+        $this.IsLegacy = $isLegacy
+        
+        # ⚠️ Update this path if yours is different
+        $this.ProviderPath = "C:\Program Files\OpenSSL-Win64\bin"
+    }
+}
