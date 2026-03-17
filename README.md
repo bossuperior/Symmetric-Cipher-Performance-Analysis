@@ -63,6 +63,7 @@ class CipherBase {
         $this.ProviderPath = "C:\Program Files\OpenSSL-Win64\bin"
     }
 }
+```
 
-## 🛠️ FYI
+## 💡 FYI
 RC4-64 is deprecated and has been removed from modern OpenSSL (v3.x) command-line aliases. Only RC4-128 and RC4-40 are available via the legacy provider.
