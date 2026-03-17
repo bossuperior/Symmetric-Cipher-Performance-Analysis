@@ -44,7 +44,12 @@ foreach ($sizeName in $fileSizes) {
             $report = $bench.Run($currentFile, $password)
             
             $results += $report
-            Write-Host " [OK]" -ForegroundColor Green
+            if ($report.Encrypt_ms -eq "N/A") {
+                Write-Host " [N/A - Not Supported]" -ForegroundColor Gray
+            }
+            else {
+                Write-Host " [OK]" -ForegroundColor Green
+            }
         }
         catch {
             Write-Host " [ERROR]" -ForegroundColor Red
@@ -59,23 +64,22 @@ $reportPath = Join-Path $PSScriptRoot "results"
 if (!(Test-Path $reportPath)) { New-Item -ItemType Directory -Path $reportPath | Out-Null }
 
 # Encryption Performance Report
-Write-Host "`n" + ("=" * 70) -ForegroundColor White
-Write-Host " PERFORMANCE REPORT: ENCRYPTION PHASE" -ForegroundColor Green
-Write-Host ("=" * 70) -ForegroundColor White
-
-$results | Select-Object Algorithm, Size, 
-    @{Name='Encrypt_Time(ms)'; Expression={$_.Encrypt_ms}}, 
+Write-Host "`n" + ("=" * 75) -ForegroundColor White
+Write-Host " PERFORMANCE REPORT: ENCRYPTION" -ForegroundColor Green
+Write-Host ("=" * 75) -ForegroundColor White
+$results | Select-Object Algorithm, 
+    @{Name="Size"; Expression={$_.Original_KB.ToString() + " KB"}}, 
+    @{Name="Encrypt_ms"; Expression={$_.Encrypt_ms}}, 
     Overhead_Bytes | Format-Table -AutoSize
 
 # Decryption Performance Report
-Write-Host "`n" + ("=" * 70) -ForegroundColor White
-Write-Host " PERFORMANCE REPORT: DECRYPTION PHASE" -ForegroundColor Cyan
-Write-Host ("=" * 70) -ForegroundColor White
+Write-Host "`n" + ("=" * 75) -ForegroundColor White
+Write-Host " PERFORMANCE REPORT: DECRYPTION" -ForegroundColor Cyan
+Write-Host ("=" * 75) -ForegroundColor White
+$results | Select-Object Algorithm, 
+    @{Name="Size"; Expression={$_.Original_KB.ToString() + " KB"}}, 
+    @{Name="Decrypt_ms"; Expression={$_.Decrypt_ms}} | Format-Table -AutoSize
 
-$results | Select-Object Algorithm, Size, 
-    @{Name='Decrypt_Time(ms)'; Expression={$_.Decrypt_ms}} | Format-Table -AutoSize
-
-$csvFile = Join-Path $reportPath "Symmetric_Performance_Analysis.csv"
+$csvFile = Join-Path $reportPath "Symmetric_Cipher_Performance_Results.csv"
 $results | Export-Csv -Path $csvFile -NoTypeInformation -Encoding utf8
-
-Write-Host "`n[COMPLETED] Results have been saved to: $csvFile" -ForegroundColor Yellow
+Write-Host "`n[COMPLETED] Results saved to: $csvFile" -ForegroundColor Yellow

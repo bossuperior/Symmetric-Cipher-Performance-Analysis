@@ -23,6 +23,9 @@ class Benchmark {
             $encTime = Measure-Command {
                 $this.Cipher.Encrypt($inputFile, $outputFile, $securePassword)
             }
+            if (!(Test-Path $outputFile) -or (Get-Item $outputFile).Length -eq 0) {
+                throw "Encryption failed: Output file not found or empty."
+            }
             $encryptedSize = (Get-Item $outputFile).Length
 
             $decTime = Measure-Command {
@@ -35,7 +38,8 @@ class Benchmark {
             #Throughput in MB/s
             $throughputValue = if ($encTime.TotalSeconds -gt 0) {
                 [math]::Round(($originalSize / 1MB) / $encTime.TotalSeconds, 2)
-            } else { 0 }
+            }
+            else { 0 }
 
             return [PSCustomObject]@{
                 Algorithm      = $this.Cipher.AlgorithmName
@@ -45,6 +49,17 @@ class Benchmark {
                 Encrypt_ms     = [math]::Round($encTime.TotalMilliseconds, 2)
                 Decrypt_ms     = [math]::Round($decTime.TotalMilliseconds, 2)
                 Throughput_MBs = $throughputValue
+            }
+        }
+        catch {
+            return [PSCustomObject]@{
+                Algorithm      = $this.Cipher.AlgorithmName
+                Original_KB    = [math]::Round($originalSize / 1KB, 2)
+                Encrypted_KB   = "N/A"
+                Overhead_Bytes = "N/A"
+                Encrypt_ms     = "N/A"
+                Decrypt_ms     = "N/A"
+                Throughput_MBs = "N/A"
             }
         }
         finally {
